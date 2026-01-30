@@ -1,0 +1,45 @@
+
+<div class="camera-container" [hidden]="photos && photos.length >= 1">
+  <app-camera
+    (photosChange)="onPhotosUpdate($event)"
+    (videoTap)="onVideoTap()">
+  </app-camera>
+  @if(!photos || photos.length < 1) {
+    <button mat-fab class="capture-button" (click)="takePhoto()">
+      <mat-icon>photo_camera</mat-icon>
+    </button>
+  }
+  @if(showFlash) {
+    <div class="flash-overlay"></div>
+  }
+</div>
+
+@if(photos) {
+  <div class="photo-preview">
+    @for (photo of photos; let i = $index; track i) {
+      <div class="photo-item">
+        <img [src]="getSafeUrl(photo)" alt="Photo {{i + 1}}" />
+        <button mat-button (click)="removePhoto(i)">❌</button>
+      </div>
+    }
+  </div>
+}
+
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="maintenance-form">
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Nom</mat-label>
+    <input matInput formControlName="name" placeholder="Nom de la plante" maxlength="55" />
+
+    @if (form.get('name')?.hasError('required')) {
+      <mat-error>Le nom est obligatoire</mat-error>
+    }
+    @if (form.get('name')?.hasError('maxlength')) {
+      <mat-error>Le nom ne doit pas dépasser 50 caractères</mat-error>
+    }
+  </mat-form-field>
+
+  <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
+    Créer la fiche
+  </button>
+</form>

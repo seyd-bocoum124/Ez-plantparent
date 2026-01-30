@@ -1,0 +1,53 @@
+<div class="gauge-container">
+  <div class="gauge-bar">
+    <!-- Échelle min en haut à gauche -->
+    <div class="scale-value scale-min" [style.left.%]="0">
+      {{ scaleMin }}{{ unit }}
+    </div>
+
+    <!-- Échelle max en haut à droite -->
+    <div class="scale-value scale-max" [style.left.%]="100">
+      {{ scaleMax }}{{ unit }}
+    </div>
+
+    <!-- Zone verte (min-max) -->
+    <div 
+      class="green-zone" 
+      [style.left.%]="getGreenZoneStart()"
+      [style.width.%]="getGreenZoneWidth()">
+    </div>
+
+    <!-- Barre Target (sans valeur affichée) -->
+    <div 
+      class="marker target-marker" 
+      [style.left.%]="getPosition(target)">
+      <div class="marker-line"></div>
+    </div>
+
+    <!-- Barre Measured -->
+    <div 
+      class="marker measured-marker" 
+      [style.left.%]="getPosition(measured)">
+      <div class="marker-value">
+        {{ measured }}{{ unit }}
+      </div>
+      <div class="marker-line"></div>
+    </div>
+  </div>
+
+  <!-- Légende -->
+  <div class="legend">
+    <span class="legend-item">
+      <span class="legend-color green"></span>
+      {{ minLabel }}-{{ maxLabel }}: {{ min }}{{ unit }} - {{ max }}{{ unit }}
+    </span>
+    <span class="legend-item">
+      <span class="legend-color target"></span>
+      {{ targetLabel }}: {{ target }}{{ unit }}
+    </span>
+    <span class="legend-item">
+      <span class="legend-color measured"></span>
+      {{ measuredLabel }}: {{ measured }}{{ unit }}
+    </span>
+  </div>
+</div>

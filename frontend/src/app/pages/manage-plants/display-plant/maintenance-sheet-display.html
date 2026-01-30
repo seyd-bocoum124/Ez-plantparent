@@ -1,0 +1,152 @@
+<div class="plant-container" *ngIf="sheet">
+  <div class="plant-card">
+    <div class="content-section">
+      <div class="plant-photo-container" *ngIf="getPhotoUrl()">
+        <img [src]="getPhotoUrl()" alt="{{ sheet.name }}" class="plant-photo">
+        <div class="confidence-badge">
+          <mat-icon>verified</mat-icon>
+          <span>{{ sheet.confidence_score }}%</span>
+        </div>
+        <div class="plant-name-overlay">
+          <h1 class="plant-name">{{ sheet.name }}</h1>
+        </div>
+        <div class="plant-names-overlay">
+          <p class="common-name">{{ sheet.common_name }}</p>
+          <p class="scientific-name">{{ sheet.scientific_name }}</p>
+        </div>
+      </div>
+
+      <div class="header-with-badge" *ngIf="!getPhotoUrl()">
+        <div class="confidence-badge">
+          <mat-icon>verified</mat-icon>
+          <span>{{ sheet.confidence_score }}%</span>
+        </div>
+      </div>
+
+      <div class="plant-title-group">
+        <h1 class="plant-name" *ngIf="!getPhotoUrl()">{{ sheet.name }}</h1>
+        <p class="common-name" *ngIf="!getPhotoUrl()">{{ sheet.common_name }}</p>
+        <p class="scientific-name" *ngIf="!getPhotoUrl()">{{ sheet.scientific_name }}</p>
+      </div>
+
+      <div class="conditions-card">
+        <h2 class="section-title">Besoins</h2>
+
+        <div class="condition-grid">
+          <div class="condition-item water">
+            <div class="condition-icon">
+              <mat-icon>water_drop</mat-icon>
+            </div>
+            <div class="condition-info">
+              <span class="condition-label">Arrosage</span>
+              <div class="condition-value-container" *ngIf="sheet.ideal_watering_days_frequency">
+                <span class="condition-value">
+                  {{ sheet.ideal_watering_days_frequency }} jours
+                </span>
+                <span class="condition-range">({{ sheet.min_watering_days_frequency }}-{{ sheet.max_watering_days_frequency }})</span>
+              </div>
+              <span class="condition-value" *ngIf="!sheet.ideal_watering_days_frequency">{{ sheet.min_watering_days_frequency }}-{{ sheet.max_watering_days_frequency }} jours</span>
+            </div>
+          </div>
+
+          <div class="condition-item light">
+            <div class="condition-icon">
+              <mat-icon>wb_sunny</mat-icon>
+            </div>
+            <div class="condition-info">
+              <span class="condition-label">Lumière</span>
+              <div class="condition-value-container" *ngIf="sheet.ideal_lumens">
+                <span class="condition-value">
+                  {{ formatNumber(sheet.ideal_lumens) }} {{ sheet.lumens_unit }}
+                </span>
+                <span class="condition-range">({{ formatNumber(sheet.min_lumens) }}-{{ formatNumber(sheet.max_lumens) }})</span>
+              </div>
+              <span class="condition-value" *ngIf="!sheet.ideal_lumens">{{ formatNumber(sheet.min_lumens) }}-{{ formatNumber(sheet.max_lumens) }} {{ sheet.lumens_unit }}</span>
+            </div>
+          </div>
+
+          <div class="condition-item temp">
+            <div class="condition-icon">
+              <mat-icon>thermostat</mat-icon>
+            </div>
+            <div class="condition-info">
+              <span class="condition-label">Température</span>
+              <div class="condition-value-container" *ngIf="sheet.ideal_temperature">
+                <span class="condition-value">
+                  {{ sheet.ideal_temperature }}°C
+                </span>
+                <span class="condition-range">({{ sheet.min_temperature }}-{{ sheet.max_temperature }}°C)</span>
+              </div>
+              <span class="condition-value" *ngIf="!sheet.ideal_temperature">{{ sheet.min_temperature }}-{{ sheet.max_temperature }}°C</span>
+            </div>
+          </div>
+
+          <div class="condition-item humidity">
+            <div class="condition-icon">
+              <mat-icon>water</mat-icon>
+            </div>
+            <div class="condition-info">
+              <span class="condition-label">Humidité sol</span>
+              <div class="condition-value-container" *ngIf="sheet.ideal_soil_humidity_after_watering">
+                <span class="condition-value">
+                  {{ sheet.ideal_soil_humidity_after_watering }}%
+                </span>
+                <span class="condition-range">({{ sheet.min_soil_humidity }}-{{ sheet.max_soil_humidity }}%)</span>
+              </div>
+              <span class="condition-value" *ngIf="!sheet.ideal_soil_humidity_after_watering">{{ sheet.min_soil_humidity }}-{{ sheet.max_soil_humidity }}%</span>
+            </div>
+          </div>
+
+          <div class="condition-item air">
+            <div class="condition-icon">
+              <mat-icon>air</mat-icon>
+            </div>
+            <div class="condition-info">
+              <span class="condition-label">Humidité air</span>
+              <div class="condition-value-container" *ngIf="sheet.ideal_air_humidity">
+                <span class="condition-value">
+                  {{ sheet.ideal_air_humidity }}%
+                </span>
+                <span class="condition-range">({{ sheet.min_air_humidity }}-{{ sheet.max_air_humidity }}%)</span>
+              </div>
+              <span class="condition-value" *ngIf="!sheet.ideal_air_humidity">{{ sheet.min_air_humidity }}-{{ sheet.max_air_humidity }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="botanical-info">
+
+
+        <div class="info-row">
+          <span class="info-label">Classification</span>
+          <span class="info-value">{{ sheet.taxon_rank }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Source d'identification</span>
+          <span class="info-value">{{ sheet.identification_source }}</span>
+        </div>
+      </div>
+
+      @if(qrCodeDataUrl) {
+        <div class="qr-code-section">
+          <h2 class="section-title">QR identification</h2>
+          <div class="qr-code-container">
+            <img [src]="qrCodeDataUrl" alt="QR Code pour plant/{{ sheet.id }}" class="qr-code-image">
+            <p class="qr-code-label">plant/{{ sheet.id }}</p>
+          </div>
+        </div>
+      }
+
+      <div class="footer-section">
+        <mat-icon>schedule</mat-icon>
+        <span>Ajoutée le {{ sheet.created_at | date:'d MMMM y' }}</span>
+        <button mat-button color="warn" (click)="delete.emit(sheet.id)">
+          Supprimer
+        </button>
+
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,43 @@
+services:
+  mobile-builder:
+    build:
+      context: .
+      dockerfile: Dockerfile.mobile
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - mobile-node-modules:/app/node_modules
+      - ./mobile-apk:/output
+      - gradle-cache:/root/.gradle
+    environment:
+      - npm_config_cache=/tmp/.npm
+    command: >
+      bash -c '
+        source /etc/profile.d/java.sh 2>/dev/null || export JAVA_HOME=$$(dirname $$(dirname $$(readlink -f $$(which java)))) ;
+        echo "Using JAVA_HOME: $$JAVA_HOME" ;
+        echo "📦 Installing Node dependencies..." ;
+        npm install --include=dev --legacy-peer-deps 2>&1 | tee /tmp/npm-install.log ;
+        if [ $$? -ne 0 ]; then
+          echo "❌ npm install failed, check logs above" ;
+          exit 1 ;
+        fi ;
+        echo "✅ Dependencies installed" ;
+        ls -la node_modules | head -20 ;
+        echo "🔨 Building Angular app..." ;
+        node_modules/.bin/ng build --configuration production ;
+        echo "⚡ Syncing Capacitor..." ;
+        node_modules/.bin/cap sync android ;
+        echo "🤖 Building Android APK..." ;
+        cd android ;
+        gradle --version ;
+        GRADLE_OPTS="-Dorg.gradle.java.home=$$JAVA_HOME" gradle assembleDebug --no-daemon ;
+        echo "📦 Copying APK..." ;
+        mkdir -p /output ;
+        cp app/build/outputs/apk/debug/app-debug.apk /output/app-debug.apk ;
+        echo "✅ APK: mobile-apk/app-debug.apk" ;
+        ls -lh /output/app-debug.apk
+      '
+
+volumes:
+  gradle-cache:
+  mobile-node-modules:

@@ -1,0 +1,103 @@
+.breadcrumb-toolbar {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  min-height: 48px;
+  background: inherit;
+
+  @media (max-width: 600px) {
+    padding: 0 4px;
+  }
+}
+
+.breadcrumb-item,
+.breadcrumb-separator {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.breadcrumb-separator {
+  margin: 0 4px;
+  opacity: 0.6;
+  
+  .mat-icon {
+    font-size: 24px;
+    color: #666;
+  }
+}
+
+.breadcrumb-item {
+  button.mat-button {
+    color: #333;
+    font-weight: 500;
+    text-transform: none;
+    padding: 0 4px;
+    line-height: normal;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+  }
+}
+
+.breadcrumb-current {
+  font-weight: bold;
+  color: #000;
+  line-height: normal;
+}
+
+.suffix-button {
+  margin-left: 4px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  .mat-icon {
+    font-size: 24px;
+    margin: 0;
+  }
+}
+
+.breadcrumb-separator.has-children {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  .suffix-button {
+    position: relative;
+    z-index: 2; // Bouton au-dessus du point
+  }
+}
+
+/* Le "·" ajouté dans le même espace que le chevron */
+.breadcrumb-separator.has-children::after {
+  content: "·";
+  position: absolute;
+  font-size: 40px;
+  line-height: 1;
+  opacity: 0.7;
+  color: #666;
+  right: 25px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1; // Point derrière le bouton
+}
+
+/* Style pour le dernier élément - chevron et point noirs */
+.breadcrumb-separator.last-item {
+  opacity: 1;
+  
+  .mat-icon {
+    color: #000;
+  }
+  
+  &::after {
+    color: #000;
+    opacity: 1;
+  }
+}

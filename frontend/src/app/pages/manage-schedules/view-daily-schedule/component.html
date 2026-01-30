@@ -1,0 +1,176 @@
+<div class="content-wrapper">
+  <h2>Daily schedules</h2>
+
+  <div>
+    @for (maintenanceSheet of maintenanceSchedules(); track maintenanceSheet.plant_id; let i = $index) {
+    <div class="plant"
+         #plantElement
+         [attr.data-plant-id]="maintenanceSheet.plant_id"
+         inViewport
+         [inViewportOptions]="{ threshold: 0.8 }"
+         (inViewportAction)="onPlantInViewport($event, i)">
+      @if(getPhotoUrl(maintenanceSheet)) {
+        <div class="plant-photo-container">
+          <img [src]="getPhotoUrl(maintenanceSheet)" alt="{{ maintenanceSheet.name }}" class="plant-photo">
+          <div class="plant-name-overlay">
+            <h2 class="plant-name">{{ maintenanceSheet.plant_name || 'Plante ' + maintenanceSheet.plant_id }}</h2>
+          </div>
+        </div>
+      } @else {
+        <h2 class="plant-title">{{ maintenanceSheet.plant_name || 'Plante ' + maintenanceSheet.plant_id }}</h2>
+      }
+      @if(maintenanceSheet.watering_advices.status === Watering_status.URGENT_WATERING) {
+        <div>Attention! cette plante requiert un arrosage de toute urgence!</div>
+      }
+      <div class="metrics-section">
+        <div class="metric-header grid">
+          <div class="condition-icon cell" >
+            <mat-icon>thermostat</mat-icon>
+          </div>
+          <div class="air-temperature cell">
+            <app-gauge-bar-horizontal-compact
+              [min]="maintenanceSheet.temperature_advices.details.min_temperature"
+              [max]="maintenanceSheet.temperature_advices.details.max_temperature"
+              [target]="maintenanceSheet.temperature_advices.details.target_temperature"
+              [measured]="maintenanceSheet.temperature_advices.details.last_express_temperature"
+              [scaleMin]="0"
+              [scaleMax]="40"
+              [unit]="'°C'">
+            </app-gauge-bar-horizontal-compact>
+          </div>
+          <div class="measure-context cell">
+            {{displayMeasureTimeContext(
+                maintenanceSheet.temperature_advices.details.days_since_express,
+                maintenanceSheet.temperature_advices.details.hours_since_express,
+                (maintenanceSheet.temperature_advices.details.last_express_temperature | number:'1.0-0') + ' °C'
+            )}}
+          </div>
+
+          <!--  Humidité air        -->
+          <div class="condition-icon cell" >
+            <mat-icon>air</mat-icon>
+          </div>
+          <div class="air-humidity cell">
+            <app-gauge-bar-horizontal-compact
+              [min]="maintenanceSheet.humidity_advices.details.min_air_humidity"
+              [max]="maintenanceSheet.humidity_advices.details.max_air_humidity"
+              [target]="maintenanceSheet.humidity_advices.details.target_air_humidity"
+              [measured]="maintenanceSheet.humidity_advices.details.last_express_air_humidity"
+              [scaleMin]="0"
+              [scaleMax]="100"
+              [unit]="'%'">
+            </app-gauge-bar-horizontal-compact>
+          </div>
+          <div class="measure-context cell">
+            {{displayMeasureTimeContext(
+                maintenanceSheet.humidity_advices.details.days_since_express,
+                maintenanceSheet.humidity_advices.details.hours_since_express,
+                (maintenanceSheet.humidity_advices.details.last_express_air_humidity | number:'1.0-0') + ' %'
+            )}}
+          </div>
+
+          <!--  Humidité sol        -->
+
+          <div class="condition-icon cell" >
+            <mat-icon>water</mat-icon>
+          </div>
+          <div class="soil-humidity cell">
+            <app-gauge-bar-horizontal-compact
+              [min]="maintenanceSheet.watering_advices.details.min_soil_humidity"
+              [max]="maintenanceSheet.watering_advices.details.max_soil_humidity"
+              [target]="maintenanceSheet.watering_advices.details.target_humidity"
+              [measured]="maintenanceSheet.watering_advices.details.last_test_humidity"
+              [scaleMin]="0"
+              [scaleMax]="100"
+              [unit]="'%'">
+            </app-gauge-bar-horizontal-compact>
+          </div>
+          <div class="measure-context cell">
+            {{displayMeasureTimeContext(
+                maintenanceSheet.watering_advices.details.days_since_test,
+                maintenanceSheet.watering_advices.details.hours_since_test,
+                (maintenanceSheet.watering_advices.details.last_test_humidity | number:'1.0-0') + ' %'
+            )}}
+          </div>
+
+          @if(maintenanceSheet.watering_advices.require_emergency_watering) {
+            <div class="alert-row-wrapper">
+              <div class="row-bg"></div>
+              <mat-icon class="urgent-watering-alert cell">warning</mat-icon>
+              <span class="urgent-watering-alert cell">Arrosage d'urgence requis!</span>
+              <button class="cell" mat-raised-button color="accent" [routerLink]="['/watering', maintenanceSheet.plant_id]">
+                Arroser
+              </button>
+            </div>
+          }
+          @if(maintenanceSheet.watering_advices.require_emergency_analysis) {
+            <div class="alert-row-wrapper">
+              <div class="row-bg row-bg-info"></div>
+              <mat-icon class="urgent-metric-risk cell">info</mat-icon>
+              <span class="urgent-metric-risk cell">Première analyse requise!</span>
+              <button class="cell" mat-raised-button color="primary" [routerLink]="['/analyse/expresse', maintenanceSheet.plant_id]">
+                Analyser
+              </button>
+            </div>
+          }
+        </div>
+
+      </div>
+
+
+
+      <div class="action-row">
+        <button mat-raised-button color="primary" 
+                [matMenuTriggerFor]="!isNativePlatform ? maintenanceMenu : null"
+                (click)="isNativePlatform ? openMaintenanceActions(maintenanceSheet.plant_id) : null"
+                class="maintenance-button"
+                #menuTrigger="matMenuTrigger">
+          <mat-icon>edit_calendar</mat-icon>
+          <span>Entretenir</span>
+        </button>
+
+        <mat-menu #maintenanceMenu="matMenu" 
+                  yPosition="above"
+                  [overlapTrigger]="false"
+                  class="maintenance-menu-panel">
+          <button mat-menu-item [routerLink]="['/watering', maintenanceSheet.plant_id]">
+            <mat-icon>water_drop</mat-icon>
+            <span>Arroser</span>
+          </button>
+          <button mat-menu-item [routerLink]="['/analyse/expresse', maintenanceSheet.plant_id]">
+            <mat-icon>science</mat-icon>
+            <span>Analyser</span>
+          </button>
+          <mat-divider></mat-divider>
+          <button mat-menu-item [routerLink]="['/my-plants', maintenanceSheet.plant_id, 'maintenance-summaries']">
+            <mat-icon>history</mat-icon>
+            <span>Historique</span>
+          </button>
+        </mat-menu>
+      </div>
+      <!--    <pre>{{ maintenanceSheet | json}}</pre>-->
+    </div>
+  }
+  </div>
+</div>
+
+<mat-toolbar color="primary" class="bottom-nav">
+  <button mat-icon-button (click)="previousItem()">
+    <mat-icon>chevron_left</mat-icon>
+  </button>
+
+  <span class="spacer"></span>
+
+  @if(isNativePlatform) {
+    <button mat-fab color="accent" (click)="scanQRCode()">
+      <mat-icon>qr_code_scanner</mat-icon>
+    </button>
+  }
+
+  <span class="spacer"></span>
+
+  <button mat-icon-button (click)="nextItem()">
+    <mat-icon>chevron_right</mat-icon>
+  </button>
+</mat-toolbar>
+

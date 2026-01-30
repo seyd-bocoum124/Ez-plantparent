@@ -1,0 +1,75 @@
+<mat-toolbar color="primary" class="breadcrumb-toolbar">
+  @if (hasHiddenItems()) {
+    <span class="breadcrumb-item">
+      <button mat-icon-button [matMenuTriggerFor]="hiddenMenu" class="breadcrumb-more">
+        <mat-icon>more_horiz</mat-icon>
+      </button>
+      <mat-menu #hiddenMenu="matMenu">
+        @for (item of hiddenItems(); track item.label) {
+          <button mat-menu-item [routerLink]="item.routerLink" [queryParams]="item.queryParams">
+            {{ item.label }}
+          </button>
+        }
+      </mat-menu>
+    </span>
+    <span class="breadcrumb-separator" [class.has-children]="lastHiddenItem()?.childs && lastHiddenItem()!.childs!.length > 0">
+      @if (lastHiddenItem()?.childs && lastHiddenItem()!.childs!.length > 0) {
+        <button mat-icon-button [matMenuTriggerFor]="lastHiddenChildsMenu" class="suffix-button">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+        <mat-menu #lastHiddenChildsMenu="matMenu">
+          @for (child of lastHiddenItem()!.childs!; track child.label) {
+            <button mat-menu-item [routerLink]="child.routerLink" [queryParams]="child.queryParams">
+              {{ child.label }}
+            </button>
+          }
+        </mat-menu>
+      } @else {
+        <mat-icon>chevron_right</mat-icon>
+      }
+    </span>
+  }
+
+  @for (item of visibleItems(); track item.label; let i = $index; let last = $last) {
+    @if (!last) {
+      <span class="breadcrumb-item">
+        <button mat-button [routerLink]="item.routerLink" [queryParams]="item.queryParams">{{ item.label }}</button>
+      </span>
+
+      <span class="breadcrumb-separator" [class.has-children]="item.childs && item.childs.length > 0">
+        @if (item.childs && item.childs.length > 0) {
+          <button mat-icon-button [matMenuTriggerFor]="childsMenu" class="suffix-button">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+          <mat-menu #childsMenu="matMenu">
+            @for (child of item.childs; track child.label) {
+              <button mat-menu-item [routerLink]="child.routerLink" [queryParams]="child.queryParams">
+                {{ child.label }}
+              </button>
+            }
+          </mat-menu>
+        } @else {
+          <mat-icon>chevron_right</mat-icon>
+        }
+      </span>
+    } @else {
+      <span class="breadcrumb-item">
+        <span class="breadcrumb-current">{{ item.label }}</span>
+        @if (item.childs && item.childs.length > 0) {
+          <span class="breadcrumb-separator has-children last-item">
+            <button mat-icon-button [matMenuTriggerFor]="lastItemMenu" class="suffix-button">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+            <mat-menu #lastItemMenu="matMenu">
+              @for (child of item.childs; track child.label) {
+                <button mat-menu-item [routerLink]="child.routerLink" [queryParams]="child.queryParams">
+                  {{ child.label }}
+                </button>
+              }
+            </mat-menu>
+          </span>
+        }
+      </span>
+    }
+  }
+</mat-toolbar>

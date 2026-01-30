@@ -1,0 +1,146 @@
+.gauge-container {
+  width: 100%;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.gauge-bar {
+  position: relative;
+  height: 40px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  margin-top: 40px;
+}
+
+.scale-value {
+  position: absolute;
+  top: -30px;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: bold;
+  color: #333;
+  
+  &.scale-min {
+    transform: translateX(0);
+  }
+  
+  &.scale-max {
+    transform: translateX(-100%);
+  }
+}
+
+.green-zone {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background-color: rgba(76, 175, 80, 0.3);
+  border-left: 2px solid #4caf50;
+  border-right: 2px solid #4caf50;
+}
+
+.range-marker {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  
+  &.range-min {
+    left: 0;
+  }
+  
+  &.range-max {
+    right: 0;
+  }
+}
+
+.range-value {
+  position: absolute;
+  top: -30px;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: bold;
+  color: #4caf50;
+}
+
+.range-min .range-value {
+  left: 0;
+  transform: translateX(0);
+}
+
+.range-max .range-value {
+  right: 0;
+  transform: translateX(0);
+}
+
+.marker {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 0;
+  transform: translateX(-50%);
+}
+
+.marker-line {
+  width: 3px;
+  height: 100%;
+  margin-left: -1.5px;
+}
+
+.target-marker .marker-line {
+  background-color: #2196f3;
+}
+
+.measured-marker .marker-line {
+  background-color: #ff9800;
+}
+
+.marker-value {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.target-marker .marker-value {
+  color: #2196f3;
+}
+
+.measured-marker .marker-value {
+  color: #ff9800;
+}
+
+.legend {
+  margin-top: 15px;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.legend-color {
+  width: 20px;
+  height: 12px;
+  border-radius: 2px;
+  
+  &.green {
+    background-color: rgba(76, 175, 80, 0.3);
+    border: 1px solid #4caf50;
+  }
+  
+  &.target {
+    background-color: #2196f3;
+  }
+  
+  &.measured {
+    background-color: #ff9800;
+  }
+}

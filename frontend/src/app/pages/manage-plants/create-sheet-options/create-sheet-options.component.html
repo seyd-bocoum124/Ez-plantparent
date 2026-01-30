@@ -1,0 +1,11 @@
+<mat-nav-list>
+  <a mat-list-item [routerLink]="['/my-plants/create/from-picture']" (click)="close()">
+    <mat-icon matListItemIcon>photo_camera</mat-icon>
+    <span matListItemTitle>Créer par photo</span>
+  </a>
+
+  <a mat-list-item [routerLink]="['/my-plants/create']" (click)="close()">
+    <mat-icon matListItemIcon>edit</mat-icon>
+    <span matListItemTitle>Créer par nom</span>
+  </a>
+</mat-nav-list>

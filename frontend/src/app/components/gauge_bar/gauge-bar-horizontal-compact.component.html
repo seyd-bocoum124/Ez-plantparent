@@ -1,0 +1,27 @@
+<div class="gauge-compact">
+  <!-- Valeurs en haut -->
+  <div class="values-row">
+    <span class="value-label">{{ scaleMin }}{{ unit }}</span>
+    <span class="value-label center">{{ target }}{{ unit }}</span>
+    <span class="value-label right">{{ scaleMax }}{{ unit }}</span>
+  </div>
+  
+  <!-- Barre de gauge -->
+  <div class="gauge-track">
+    <!-- Zone acceptable (entre min et max) -->
+    <div class="range-zone" 
+         [style.left.%]="getMinPosition()" 
+         [style.width.%]="getRangeWidth()">
+    </div>
+    
+    <!-- Ligne target -->
+    <div class="target-line" 
+         [style.left.%]="getTargetPosition()">
+    </div>
+    
+    <!-- Indicateur de valeur mesurée -->
+    <div class="measured-indicator" 
+         [style.left.%]="getMeasuredPosition()">
+    </div>
+  </div>
+</div>

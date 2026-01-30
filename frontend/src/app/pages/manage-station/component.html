@@ -1,0 +1,34 @@
+<h2>Stations</h2>
+
+<div class="pairing-form">
+  <h3>Pairing une nouvelle station</h3>
+  <form [formGroup]="pairingForm" (ngSubmit)="onPairStation()">
+    <div class="form-group">
+      <label for="pairingCode">Code de pairing</label>
+      <input 
+        id="pairingCode"
+        type="text" 
+        formControlName="pairingCode"
+        maxlength="12"
+        placeholder="Entrez le code (max 12 caractères)"
+        class="form-control"
+      />
+      <div class="error" *ngIf="pairingForm.get('pairingCode')?.invalid && pairingForm.get('pairingCode')?.touched">
+        <small *ngIf="pairingForm.get('pairingCode')?.errors?.['required']">Le code est requis</small>
+        <small *ngIf="pairingForm.get('pairingCode')?.errors?.['maxlength']">Maximum 12 caractères</small>
+      </div>
+    </div>
+    <button type="submit" [disabled]="pairingForm.invalid || isLoading()">Pairing</button>
+    <span *ngIf="isLoading()" class="loading">En cours...</span>
+  </form>
+  <div *ngIf="pairingMessage()" class="message" [class.success]="pairingSuccess()" [class.error]="!pairingSuccess()">
+    {{ pairingMessage() }}
+  </div>
+</div>
+
+<ul>
+  <li *ngFor="let station of stations(); trackBy: trackById" class="station-item">
+    {{ station.name }} – {{ station.location }}
+  </li>
+</ul>
+

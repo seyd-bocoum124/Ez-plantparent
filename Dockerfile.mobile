@@ -1,0 +1,29 @@
+FROM runmymind/docker-android-sdk:latest
+
+# Install Node.js 20
+RUN apt-get update -qq && \
+    apt-get install -y -qq curl unzip && \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y -qq nodejs && \
+    rm -rf /var/lib/apt/lists/*
+
+# Find and set correct Java home
+RUN update-alternatives --list java || true && \
+    JAVA_PATH=$(update-alternatives --list java | head -1) && \
+    JAVA_HOME_DIR=$(dirname $(dirname $JAVA_PATH)) && \
+    echo "export JAVA_HOME=$JAVA_HOME_DIR" >> /etc/profile.d/java.sh
+
+# Install Gradle 8.5
+RUN wget -q https://services.gradle.org/distributions/gradle-8.5-bin.zip && \
+    unzip -q gradle-8.5-bin.zip -d /opt && \
+    rm gradle-8.5-bin.zip && \
+    ln -s /opt/gradle-8.5/bin/gradle /usr/local/bin/gradle
+
+# Set environment variables (use dynamic JAVA_HOME)
+ENV ANDROID_HOME=/opt/android-sdk-linux
+ENV GRADLE_HOME=/opt/gradle-8.5
+ENV PATH=$PATH:$GRADLE_HOME/bin:$ANDROID_HOME/cmdline-tools/latest/bin
+
+WORKDIR /app
+
+CMD ["bash"]

@@ -1,0 +1,28 @@
+<mat-toolbar color="primary">
+  @if (user$ | async; as user) {
+    <app-breadcrumb [items]="items"></app-breadcrumb>
+
+    <span class="spacer"></span>
+    <!-- Menu utilisateur -->
+    <button mat-icon-button [matMenuTriggerFor]="userMenu">
+      <mat-icon>account_circle</mat-icon>
+    </button>
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item disabled>
+        {{ user?.email ?? user?.id }}
+      </button>
+      <button mat-menu-item routerLink="stations">
+        <mat-icon>build</mat-icon>
+        <span>Pair station</span>
+      </button>
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Déconnexion</span>
+      </button>
+    </mat-menu>
+  } @else {
+    <span class="spacer"></span>
+    <app-google-login></app-google-login>
+  }
+</mat-toolbar>
+

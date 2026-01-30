@@ -1,0 +1,58 @@
+<div class="gauge-container-vertical">
+  <!-- Labels à gauche -->
+  <div class="labels">
+    <!-- Scale Max en haut -->
+    <div class="scale-label scale-max" [style.bottom.%]="100">
+      {{ scaleMax }}{{ unit }}
+    </div>
+
+    <!-- Max value -->
+    <div class="value-label max-label" [style.bottom.%]="getPosition(max)">
+      {{ max }}{{ unit }}
+    </div>
+
+    <!-- Target value -->
+    <div class="value-label target-label" [style.bottom.%]="getPosition(target)">
+      {{ target }}{{ unit }}
+    </div>
+
+    <!-- Measured value -->
+    <div class="value-label measured-label" [style.bottom.%]="getPosition(measured)">
+      {{ measured }}{{ unit }}
+    </div>
+
+    <!-- Min value -->
+    <div class="value-label min-label" [style.bottom.%]="getPosition(min)">
+      {{ min }}{{ unit }}
+    </div>
+
+    <!-- Scale Min en bas -->
+    <div class="scale-label scale-min" [style.bottom.%]="0">
+      {{ scaleMin }}{{ unit }}
+    </div>
+  </div>
+
+  <!-- Barre verticale -->
+  <div class="gauge-bar-vertical">
+    <!-- Zone verte (min-max) -->
+    <div 
+      class="green-zone" 
+      [style.bottom.%]="getGreenZoneBottom()"
+      [style.height.%]="getGreenZoneHeight()">
+    </div>
+
+    <!-- Ligne Target -->
+    <div 
+      class="marker target-marker" 
+      [style.bottom.%]="getPosition(target)">
+      <div class="marker-line"></div>
+    </div>
+
+    <!-- Ligne Measured -->
+    <div 
+      class="marker measured-marker" 
+      [style.bottom.%]="getPosition(measured)">
+      <div class="marker-line"></div>
+    </div>
+  </div>
+</div>

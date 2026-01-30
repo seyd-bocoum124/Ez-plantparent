@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">EzPlantParent</string>
+    <string name="title_activity_main">EzPlantParent</string>
+    <string name="package_name">com.ezplantparent.mobile</string>
+    <string name="custom_url_scheme">com.ezplantparent.mobile</string>
+    <string name="server_client_id">277969973394-iukhj3ekrkqj7v54e5kria66pc2g435i.apps.googleusercontent.com</string>
+</resources>

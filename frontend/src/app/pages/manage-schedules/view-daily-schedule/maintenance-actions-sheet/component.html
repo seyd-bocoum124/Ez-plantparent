@@ -1,0 +1,21 @@
+<div class="bottom-sheet-container">
+  <h3 class="sheet-title">
+    <mat-icon>edit_calendar</mat-icon>
+    Actions d'entretien
+  </h3>
+  <div class="sheet-actions">
+    <button mat-menu-item (click)="selectAction('watering')">
+      <mat-icon>water_drop</mat-icon>
+      <span>Arroser</span>
+    </button>
+    <button mat-menu-item (click)="selectAction('analyze')">
+      <mat-icon>science</mat-icon>
+      <span>Analyser</span>
+    </button>
+    <div class="divider"></div>
+    <button mat-menu-item (click)="selectAction('history')">
+      <mat-icon>history</mat-icon>
+      <span>Historique</span>
+    </button>
+  </div>
+</div>

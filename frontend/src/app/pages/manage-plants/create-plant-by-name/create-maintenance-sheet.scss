@@ -1,0 +1,19 @@
+.maintenance-card {
+  max-width: 600px;
+  margin: 24px auto;
+  padding: 16px;
+}
+
+.section {
+  margin-bottom: 16px;
+}
+
+mat-card-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+mat-card-subtitle {
+  font-size: 1rem;
+  color: #666;
+}

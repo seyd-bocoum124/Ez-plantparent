@@ -1,0 +1,160 @@
+services:
+  traefik:
+    image: traefik:v2.11
+    container_name: traefik
+    restart: always
+    command:
+      # Enable Docker provider
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      
+      # Entrypoints
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.mqtt.address=:8883"
+      
+      # HTTP to HTTPS redirect
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      
+      # Let's Encrypt configuration
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@ezplantparent.com}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      
+      # Dashboard (optional, for monitoring)
+      - "--api.dashboard=true"
+      
+      # Logs
+      - "--log.level=INFO"
+      - "--accesslog=true"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8883:8883"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-certificates:/letsencrypt
+    networks:
+      - app-network
+    # Dashboard désactivé (pas de DNS configuré pour traefik.ezplantparent.com)
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.dashboard.rule=Host(`traefik.ezplantparent.com`)"
+    #   - "traefik.http.routers.dashboard.entrypoints=websecure"
+    #   - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+    #   - "traefik.http.routers.dashboard.service=api@internal"
+
+  postgres:
+    container_name: postgres_prod
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-ezplantparent}
+    volumes:
+      - pgdata_prod:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    networks:
+      - app-network
+
+  broker:
+    container_name: broker_prod
+    image: eclipse-mosquitto:2.0
+    restart: always
+    volumes:
+      - ./broker/config:/mosquitto/config
+      - ./broker/data:/mosquitto/data
+      - ./broker/log:/mosquitto/log
+      - ./ssl-mqtt:/mosquitto/ssl
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=true"
+      # MQTT TCP routing (passthrough TLS)
+      - "traefik.tcp.routers.mqtt.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.mqtt.entrypoints=mqtt"
+      - "traefik.tcp.routers.mqtt.service=mqtt"
+      - "traefik.tcp.services.mqtt.loadbalancer.server.port=8883"
+
+  backend:
+    container_name: backend_prod
+    build:
+      context: ./backend
+    command: >
+      sh -c "./wait-for-it.sh postgres:5432 --
+             uvicorn backend.app:app --host=0.0.0.0 --port=3000"
+    environment:
+      PYTHONPATH: /app/backend
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-ezplantparent}
+      JWT_SECRET: ${JWT_SECRET:-changeme_insecure_default}
+      JWT_ALGO: ${JWT_ALGO:-HS256}
+      CHAT_GPT_KEY: ${CHAT_GPT_KEY:-disabled}
+      MQTT_HOST: broker
+      MQTT_PORT: 8883
+      SHARED_KEY: ${SHARED_KEY}
+      PLANT_NET_API_KEY: ${PLANT_NET_API_KEY}
+    volumes:
+      - ./ssl-mqtt:/ssl
+    depends_on:
+      - postgres
+      - broker
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=true"
+      
+      # API routes
+      - "traefik.http.routers.backend-api.rule=Host(`ezplantparent.com`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.backend-api.entrypoints=websecure"
+      - "traefik.http.routers.backend-api.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.backend-api.service=backend-api"
+      - "traefik.http.routers.backend-api.priority=100"
+      - "traefik.http.services.backend-api.loadbalancer.server.port=3000"
+      
+      # Health check
+      - "traefik.http.routers.backend-health.rule=Host(`ezplantparent.com`) && Path(`/health`)"
+      - "traefik.http.routers.backend-health.entrypoints=websecure"
+      - "traefik.http.routers.backend-health.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.backend-health.service=backend-health"
+      - "traefik.http.routers.backend-health.priority=100"
+      - "traefik.http.services.backend-health.loadbalancer.server.port=3000"
+      
+      # WebSocket routes - Traefik handles WebSocket upgrade automatically
+      - "traefik.http.routers.backend-ws.rule=Host(`ezplantparent.com`) && PathPrefix(`/ws`)"
+      - "traefik.http.routers.backend-ws.entrypoints=websecure"
+      - "traefik.http.routers.backend-ws.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.backend-ws.service=backend-ws"
+      - "traefik.http.routers.backend-ws.priority=100"
+      - "traefik.http.services.backend-ws.loadbalancer.server.port=3000"
+
+  frontend:
+    container_name: frontend_prod
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`ezplantparent.com`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.frontend.service=frontend"
+      - "traefik.http.routers.frontend.priority=1"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+
+volumes:
+  pgdata_prod:
+  traefik-certificates:
+  mqtt-data:
+  mqtt-logs:
+
+networks:
+  app-network:
+    driver: bridge

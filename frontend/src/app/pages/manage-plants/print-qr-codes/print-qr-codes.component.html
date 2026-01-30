@@ -1,0 +1,25 @@
+<div class="print-container">
+  <div class="header no-print">
+    <h1>Codes QR - Fiches d'entretien</h1>
+    <div class="actions">
+      <button mat-raised-button color="primary" (click)="print()">
+        <mat-icon>print</mat-icon>
+        Imprimer
+      </button>
+      <button mat-raised-button (click)="close()">
+        <mat-icon>close</mat-icon>
+        Fermer
+      </button>
+    </div>
+  </div>
+
+  <div class="qr-grid">
+    @for (qr of qrCodes; track qr.id) {
+      <div class="qr-item">
+        <img [src]="qr.qrCodeDataUrl" [alt]="'QR Code ' + qr.name" />
+        <h3>{{ qr.name }}</h3>
+        <p>plant/{{ qr.id }}</p>
+      </div>
+    }
+  </div>
+</div>

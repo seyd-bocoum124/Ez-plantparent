@@ -1,0 +1,32 @@
+  services:
+    mkcert:
+      build:
+        context: ./security
+        dockerfile: Dockerfile
+      image: local-mkcert:latest
+      volumes:
+        - ./ssl:/data
+      environment:
+        - HOSTS=${HOSTS:-localhost 127.0.0.1 ::1}
+        - CAROOT=/data
+      command: >
+        sh -c "
+          set -e;
+          mkdir -p /data;
+          echo HOSTS=$HOSTS;
+          if [ ! -f /data/rootCA.pem ]; then
+            echo 'Création de la CA dans /data...';
+            mkcert -install;
+          else
+            echo 'rootCA.pem déjà présent, CA non régénérée.';
+          fi;
+          if [ -z \"$HOSTS\" ]; then
+            mkcert localhost 127.0.0.1 ::1;
+          else
+            eval mkcert $HOSTS;
+          fi;
+          echo 'Listing /data:'; ls -al /data;
+          sleep 5
+        "
+
+

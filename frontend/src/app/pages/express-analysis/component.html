@@ -1,0 +1,66 @@
+<div>
+  <mat-stepper [linear]="true" #stepper (selectionChange)="onStepChange($event)">
+    <mat-step [editable]="!reportId">
+      <ng-template matStepLabel>Préparation</ng-template>
+      <div>Mettre le sensor dans la terre jusqu'au niveau, votre station doit être allumée.</div>
+      @if(isTestingSensor) {
+        <div>Test en cours - {{numberOfDataMessages}}/{{TEST_SENSORS_DURATION}}</div>
+      } @else {
+        <button matButton="filled" (click)="sensorTest('start')">{{ 'Reprendre les test' }}</button>
+      }
+      <app-express-live-chart></app-express-live-chart>
+      <button matButton="filled" matStepperNext>Débuter l'analyse</button>
+    </mat-step>
+    <mat-step [editable]="!reportId" [completed]="reportId">
+      <ng-template matStepLabel>Analyse</ng-template>
+      @if(reportId) {
+        <div class="analysis-done-message">
+          {{ "L'analyse expresse est terminée. \n Redirection vers les résultats" }}
+        </div>
+        <button matButton="filled" matStepperNext>Voir les résultats</button>
+      } @else {
+        @if(isExpressAnalysis) {
+          <mat-progress-bar mode="determinate"
+            [value]="(numberOfDataMessages / EXPRESS_ANALYSIS_DURATION) * 100"
+            color="primary"></mat-progress-bar>
+
+          <div>{{numberOfDataMessages}}/{{EXPRESS_ANALYSIS_DURATION}}</div>
+          <button matButton="filled" (click)="cancelExpressAnalysis()">{{ 'Annuler l\'Analyse' }}</button>
+        } @else {
+          <button matButton="filled" (click)="cmdExpressAnalysis('start')">{{ 'Redémarrer l\'Analyse expresse' }}</button>
+        }
+        <app-express-live-chart></app-express-live-chart>
+        @if(isExpressAnalysis && data) {
+          <mat-chip-listbox>
+            <mat-chip selectable="false" class="chip-line">
+              <span class="field">{{ data.ts | date:'HH:mm:ss' }}</span>
+              🌡 <span class="field">{{ data.raw.temperature | number:'2.2-2' }}</span> °C |
+              🌬️ air <span class="field">{{ data.raw.air_humidity | number:'2.2-2' }}</span> % |
+              🌱 sol <span class="field">{{ data.raw.humidity | number:'2.2-2' }}</span> % |
+            </mat-chip>
+          </mat-chip-listbox>
+        }
+      }
+    </mat-step>
+    <mat-step [editable]="reportId" [completed]="reportId">
+      <ng-template matStepLabel>Résultats</ng-template>
+      @if(reportDeleted) {
+        <div>Analyse rejetté!</div>
+        <button matButton="filled" (click)="restartAnalysis()">{{ 'Restart an analysis' }}</button>
+        <button mat-button [routerLink]="['/my-plants']">Retour à mes plantes</button>
+      } @else if(expressAnalysisReport() && reportId) {
+        <app-express-live-chart></app-express-live-chart>
+          <div>air_humidity_mean : {{ expressAnalysisReport().air_humidity_mean }}</div>
+          <div>temperature_mean: {{ expressAnalysisReport().temperature_mean }}</div>
+          <div>soil_humidity_mean {{ expressAnalysisReport().soil_humidity_mean }}</div>
+          <button matButton="filled" (click)="deleteReport()">{{ 'Delete report' }} - {{reportId}}</button>
+          <button
+            mat-button
+            [routerLink]="['/maintenance-schedule']"
+            [queryParams]="{ plantId: plantId }">
+            Retour à mes plantes
+          </button>
+      }
+    </mat-step>
+  </mat-stepper>
+</div>

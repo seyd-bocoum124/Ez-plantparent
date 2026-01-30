@@ -1,0 +1,109 @@
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  // Masquer le menu de l'app
+  main-menu,
+  mat-toolbar {
+    display: none !important;
+  }
+
+  @page {
+    margin: 1cm;
+  }
+
+  body {
+    margin: 0;
+  }
+
+  .print-container {
+    padding: 0;
+  }
+}
+
+.print-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.header {
+  margin-bottom: 30px;
+  
+  h1 {
+    margin: 0 0 20px 0;
+    font-size: 24px;
+    color: #333;
+  }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+
+    button {
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+.qr-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 3cm);
+  gap: 0.5cm;
+  justify-content: start;
+}
+
+.qr-item {
+  width: 3cm;
+  height: 5cm;
+  border: 1px solid #333;
+  padding: 0.2cm;
+  text-align: center;
+  break-inside: avoid;
+  page-break-inside: avoid;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  background: white;
+
+  img {
+    width: 2.5cm;
+    height: 2.5cm;
+    object-fit: contain;
+  }
+
+  h3 {
+    margin: 0.1cm 0 0 0;
+    font-size: 8pt;
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+  }
+
+  p {
+    margin: 0;
+    font-size: 6pt;
+    color: #666;
+  }
+}
+
+// Mobile responsive
+@media (max-width: 600px) {
+  .qr-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .qr-item {
+    width: 100%;
+    height: auto;
+    min-height: 150px;
+  }
+}

@@ -1,0 +1,11 @@
+mat-nav-list {
+  padding: 0;
+}
+
+a[mat-list-item] {
+  height: 56px;
+  
+  mat-icon {
+    margin-right: 16px;
+  }
+}

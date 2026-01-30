@@ -1,0 +1,7 @@
+# Chaque station est limitée à ses propres topics
+pattern read  stations/%u/#
+pattern write stations/%u/#
+
+user backend-client
+topic write stations/+/#
+topic read  stations/+/#

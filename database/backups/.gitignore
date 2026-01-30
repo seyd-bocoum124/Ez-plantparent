@@ -1,0 +1,6 @@
+# Ignore all backup files
+*.sql
+*.sql.gz
+
+# But keep this directory in git
+!.gitignore

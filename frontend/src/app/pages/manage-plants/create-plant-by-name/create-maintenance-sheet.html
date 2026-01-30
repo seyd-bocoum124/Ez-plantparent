@@ -1,0 +1,118 @@
+<mat-stepper [linear]="true" #stepper (selectionChange)="onStepChange($event)">
+  <mat-step [editable]="!newMaintenanceSheet && !isWaiting" [completed]="isStepPassed(StepIndex.GIVE_A_NAME)">
+    <ng-template matStepLabel>Identifier</ng-template>
+    <mat-card appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>Identifier</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if(identificationStage == IdentificationStage.FILLING_SCIENTIFIC_NAME) {
+          <mat-form-field appearance="outline">
+          <mat-label>Nom de la plante (français ou scientifique)</mat-label>
+            <input matInput [(ngModel)]="inputName" />
+          </mat-form-field>
+          <button mat-raised-button color="primary" (click)="searchSuggestions()">Rechercher</button>
+        } @else {
+          <button matButton="filled" (click)="goToFillSuggestion()">Reccomencer recherche</button>
+        }
+
+        @if (identificationStage === IdentificationStage.SUGGESTION_CHOSEN) {
+          <table class="taxon-table">
+            <tr><th>Nom commun</th><td>{{ selected.common_name }}</td></tr>
+            <tr><th>Nom scientifique</th><td>{{ selected.scientific_name }}</td></tr>
+            <tr><th>Rang</th><td>{{ selected.taxon_rank }}</td></tr>
+            <tr><th>Source</th><td>{{ selected.identification_source }}</td></tr>
+            <tr><th>TaxonKey</th><td>{{ selected.taxonkey }}</td></tr>
+          </table>
+        }
+        @else if(identificationStage == IdentificationStage.DISPLAY_SUGGESTIONS) {
+          @if (result?.results?.length) {
+            @for (item of result.results; let i = $index; track i) {
+            <mat-card>
+              <button mat-raised-button color="primary" (click)="selectItem(i)">Sélectionner {{ item.scientificName }} (nom scientifique)</button>
+              <p><strong>Nom canonique :</strong> {{ item.canonicalName }}</p>
+              <p><strong>Famille :</strong> {{ item.family }}</p>
+              <p><strong>Genre :</strong> {{ item.genus }}</p>
+              <p><strong>Rang :</strong> {{ item.rank }}</p>
+              <p><strong>Statut taxonomique :</strong> {{ item.taxonomicStatus }}</p>
+              <p><strong>ID GBIF :</strong> {{ item.key }}</p>
+
+              @if (item.vernacularNames?.length) {
+                <p><strong>Noms communs :</strong></p>
+                <ul>
+                  @for (v of getFilteredNames(item); let i = $index; track i) {
+                    <li>{{ v.vernacularName }} <small>({{ v.language }})</small></li>
+                  }
+                </ul>
+              }
+            </mat-card>
+            }
+          } @else {
+            <p>Aucun résultat trouvé pour "{{ inputName }}".</p>
+          }
+        }
+        <mat-card-actions align="end">
+          @if(identificationStage === IdentificationStage.SUGGESTION_CHOSEN) {
+            <button matButton="filled" (click)="goNextStep()">Suivant</button>
+          }
+        </mat-card-actions>
+      </mat-card-content>
+    </mat-card>
+
+  </mat-step>
+  <mat-step [stepControl]="form" [editable]="!isBefore(StepIndex.GIVE_A_NAME) && !newMaintenanceSheet &&!isWaiting" [completed]="isStepPassed(StepIndex.GIVE_A_NAME)" label="Give a pseudoname to your plant">
+    <ng-template matStepLabel>Créer</ng-template>
+    <mat-card appearance="outlined">
+      @if(identificationStage == IdentificationStage.GIVE_A_NAME) {
+        <mat-card-header>
+          <mat-card-title>Créer</mat-card-title>
+        </mat-card-header>
+      }
+      <mat-card-content>
+        @if(identificationStage == IdentificationStage.GIVE_A_NAME) {
+          <app-plant-naming-form (submitForm)="onNameSubmitted($event)"></app-plant-naming-form>
+            @if(selected) {
+              <table class="taxon-table">
+                <tr><th>Nom commun</th><td>{{ selected.common_name }}</td></tr>
+                <tr><th>Nom scientifique</th><td>{{ selected.scientific_name }}</td></tr>
+                <tr><th>Rang</th><td>{{ selected.taxon_rank }}</td></tr>
+                <tr><th>Source</th><td>{{ selected.identification_source }}</td></tr>
+                <tr><th>TaxonKey</th><td>{{ selected.taxonkey }}</td></tr>
+              </table>
+            }
+        } @else if(identificationStage == IdentificationStage.WAIT_MAINTENANCE_SHEET) {
+          <div>Création de la fiche de maintenance...</div>
+          <mat-spinner></mat-spinner>
+        }  @else if(identificationStage == IdentificationStage.MAINTENANCE_SHEET_SUCCESS) {
+          <h3>Fiche d'entretien créée avec succès!</h3>
+          <mat-card-actions align="end">
+            <button matButton="filled" (click)="goNextStep()">Suivant</button>
+          </mat-card-actions>
+        }
+      </mat-card-content>
+    </mat-card>
+  </mat-step>
+  <mat-step [editable]="!isBefore(StepIndex.PRESENT_RESULTS) && !isWaiting">
+    <mat-card>
+      <ng-template matStepLabel>Confirmer</ng-template>
+        <mat-card-header>
+          <mat-card-title>Confirmer</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if(identificationStage == IdentificationStage.MAINTENANCE_SHEET_SUCCESS) {
+            <app-maintenance-sheet-display [sheet]="newMaintenanceSheet"></app-maintenance-sheet-display>
+          } @else if(identificationStage == IdentificationStage.MAINTENANCE_SHEET_DELETED) {
+            <div>La plante a été supprimée</div>
+          }
+        </mat-card-content>
+      <mat-card-actions align="end">
+        @if(identificationStage != IdentificationStage.MAINTENANCE_SHEET_DELETED) {
+          <button matButton="filled" (click)="deleteMaintenanceSheet(newMaintenanceSheet.id)">Supprimer</button>
+        }
+        <button matButton="filled" [routerLink]="['/my-plants']">Accepter (retour aux fiches)</button>
+      </mat-card-actions>
+    </mat-card>
+  </mat-step>
+</mat-stepper>
+
+

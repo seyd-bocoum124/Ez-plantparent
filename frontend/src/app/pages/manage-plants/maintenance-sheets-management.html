@@ -1,0 +1,23 @@
+<h2>Liste des Fiches d'entretien</h2>
+<button mat-button color="primary"
+        (click)="openCreateMenu()"
+        [matMenuTriggerFor]="!isNativePlatform ? menu : null">
+  Créer une fiche
+  <mat-icon>expand_more</mat-icon>
+</button>
+
+<mat-menu #menu="matMenu">
+  <button mat-menu-item [routerLink]="['/my-plants/create/from-picture']">Créer par photo</button>
+  <button mat-menu-item [routerLink]="['/my-plants/create']">Créer par nom</button>
+</mat-menu>
+
+
+
+<button mat-button (click)="printAllQRCodes()">Imprimer les codes QR</button>
+<ul>
+  @for (maintenanceSheet of sheets(); track maintenanceSheet.id) {
+    <li class="maintenanceSheet-item">
+      <app-maintenance-sheet-display (delete)="deleteMaintenanceSheet($event)" [sheet]="maintenanceSheet"></app-maintenance-sheet-display>
+    </li>
+  }
+</ul>
