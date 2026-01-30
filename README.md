@@ -63,3 +63,5 @@ En développement local, ce sera :
 https://localhost:3000/docs
 https://localhost:3000/redoc
 
+projet  effectuer en collaboration avec Pierre luc maitre et Nana Myriam 
+
